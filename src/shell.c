@@ -1,45 +1,61 @@
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include "shell.h"
+#include <string.h>
 
-int handle_builtin(char **args) {
-    if (args[0] == NULL) {
-        return 1; // Empty command
+#include "shell.hc"     // contains CMD_LENGTH and handle_builtin declaration
+#include "history.h"
+
+void handle_builtin(char **args) {
+    if(strcmp(args[0], "history") == 0) {
+        print_history();
     }
+    // Add other built-ins like exit, cd if needed
+}
 
-    // exit command
-    if (strcmp(args[0], "exit") == 0) {
-        printf("Exiting shell...\n");
-        exit(0);
-    }
+void shell_loop() {
+    char line[CMD_LENGTH];
 
-    // cd command
-    else if (strcmp(args[0], "cd") == 0) {
-        if (args[1] == NULL) {
-            fprintf(stderr, "cd: expected argument\n");
-        } else if (chdir(args[1]) != 0) {
-            perror("cd");
+    while(1) {
+        printf("myshell> ");
+        if(!fgets(line, sizeof(line), stdin)) break;
+        line[strcspn(line, "\n")] = 0; // remove newline
+
+        if(strlen(line) == 0) continue;
+
+        // Task 4: Handle !n re-execution
+        if(line[0] == '!') {
+            int n = atoi(line + 1);
+            char* cmd = get_history_command(n);
+            if(cmd) {
+                printf("%s\n", cmd);
+                strcpy(line, cmd);
+            } else {
+                printf("No such command in history.\n");
+                continue;
+            }
         }
-        return 1;
-    }
 
-    // help command
-    else if (strcmp(args[0], "help") == 0) {
-        printf("Ayesha's Shell — Built-in Commands:\n");
-        printf("  cd <directory>  : Change current directory\n");
-        printf("  help            : Display this help message\n");
-        printf("  jobs            : Show job control info (not yet implemented)\n");
-        printf("  exit            : Exit the shell\n");
-        return 1;
-    }
+        add_history(line); // store command
 
-    // jobs command
-    else if (strcmp(args[0], "jobs") == 0) {
-        printf("Job control not yet implemented.\n");
-        return 1;
-    }
+        // Tokenize the command
+        char *args[100];
+        int i = 0;
+        char *token = strtok(line, " ");
+        while(token) {
+            args[i++] = token;
+            token = strtok(NULL, " ");
+        }
+        args[i] = NULL;
 
-    return 0; // Not a built-in command
+        // Handle built-ins
+        if(args[0]) {
+            if(strcmp(args[0], "history") == 0) {
+                handle_builtin(args);
+                continue;
+            }
+        }
+
+        // Execute external commands
+        execute(args);
+    }
 }
