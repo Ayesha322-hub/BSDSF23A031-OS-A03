@@ -1,22 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "shell.h"
+#include "builtins.h"
+
+#define MAX_INPUT 1024
+#define MAX_ARGS 64
 
 int main() {
-    char* cmdline;
-    char** arglist;
+    char input[MAX_INPUT];
+    char *args[MAX_ARGS];
 
-    while ((cmdline = read_cmd(PROMPT, stdin)) != NULL) {
-        if ((arglist = tokenize(cmdline)) != NULL) {
-            execute(arglist);
-
-            // Free the memory allocated by tokenize()
-            for (int i = 0; arglist[i] != NULL; i++) {
-                free(arglist[i]);
-            }
-            free(arglist);
+    while (1) {
+        printf("myshell> ");
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            printf("\n");
+            break;
         }
-        free(cmdline);
+
+        input[strcspn(input, "\n")] = '\0';
+
+        int i = 0;
+        char *token = strtok(input, " ");
+        while (token != NULL && i < MAX_ARGS - 1) {
+            args[i++] = token;
+            token = strtok(NULL, " ");
+        }
+        args[i] = NULL;
+
+        if (args[0] == NULL)
+            continue;
+
+        // Built-in commands handled here
+        if (handle_builtin(args) == 0) {
+            execute(args);
+        }
     }
 
-    printf("\nShell exited.\n");
     return 0;
 }
