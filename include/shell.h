@@ -1,8 +1,8 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-// Function declarations for the shell core
+char **split_command(char *cmd);
+void free_args(char **args);
 void execute(char **args);
 
 #endif
-
