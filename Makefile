@@ -2,8 +2,8 @@ CC = gcc
 CFLAGS = -Iinclude -Wall
 LDFLAGS = -lreadline
 
-SRC = src/main.c src/shell.c src/io_redirection.c src/pipes.c src/multitasking.c
-OBJ = obj/main.o obj/shell.o obj/io_redirection.o obj/pipes.o obj/multitasking.o
+SRC = src/main.c src/shell.c src/io_redirection.c src/pipes.c src/multitasking.c src/if_then.c
+OBJ = obj/main.o obj/shell.o obj/io_redirection.o obj/pipes.o obj/multitasking.o obj/if_then.o
 TARGET = bin/myshell
 
 
