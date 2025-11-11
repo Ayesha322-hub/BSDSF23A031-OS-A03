@@ -1,25 +1,20 @@
-# Compiler and flags
 CC = gcc
 CFLAGS = -Iinclude -Wall
 
-# Source and object files
 SRC = src/main.c src/shell.c src/execute.c src/history.c
 OBJ = obj/main.o obj/shell.o obj/execute.o obj/history.o
 TARGET = bin/myshell
 
-# Default target
 all: $(TARGET)
 
-# Link object files to create executable
+# Build executable
 $(TARGET): $(OBJ)
-	@mkdir -p bin
 	$(CC) $(OBJ) -o $(TARGET)
 
-# Compile source files into object files
+# Compile each source file into object file
 obj/%.o: src/%.c
-	@mkdir -p obj
+	mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean build files
 clean:
 	rm -rf obj/* $(TARGET)
