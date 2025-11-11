@@ -1,0 +1,14 @@
+total 44
+drwxrwxr-x 2 kali kali 4096 Nov 11 03:33 bin
+-rw-r--r-- 1 kali kali    0 Nov 11 03:33 files.txt
+-rw-rw-r-- 1 kali kali    0 Nov 11 01:12 help
+drwxrwxr-x 2 kali kali 4096 Nov 11 03:32 include
+-rw-rw-r-- 1 kali kali 1627 Nov 11 03:16 io_redirection.c
+-rw-rw-r-- 1 kali kali   94 Nov 11 03:27 io_redirection.h
+-rw-rw-r-- 1 kali kali  369 Nov 11 03:33 Makefile
+-rw-rw-r-- 1 kali kali  388 Nov 11 01:36 Makefile.h
+drwxrwxr-x 2 kali kali 4096 Nov 11 03:33 obj
+-rw-rw-r-- 1 kali kali  866 Nov 11 03:18 pipes.c
+-rw-rw-r-- 1 kali kali   69 Nov 11 03:27 pipes.h
+-rw-rw-r-- 1 kali kali   20 Nov 11 00:31 README.md
+drwxrwxr-x 2 kali kali 4096 Nov 11 03:32 src
