@@ -12,10 +12,7 @@ int main() {
 
     while (1) {
         cmd = readline("myshell> ");
-        if (!cmd) {
-            printf("\nExiting shell...\n");
-            break;
-        }
+        if (!cmd) break;
 
         if (*cmd) {
             add_history(cmd);

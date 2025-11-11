@@ -2,9 +2,10 @@ CC = gcc
 CFLAGS = -Iinclude -Wall
 LDFLAGS = -lreadline
 
-SRC = src/main.c src/shell.c src/io_redirection.c src/pipes.c
-OBJ = obj/main.o obj/shell.o obj/io_redirection.o obj/pipes.o
+SRC = src/main.c src/shell.c src/io_redirection.c src/pipes.c src/multitasking.c
+OBJ = obj/main.o obj/shell.o obj/io_redirection.o obj/pipes.o obj/multitasking.o
 TARGET = bin/myshell
+
 
 all: $(TARGET)
 

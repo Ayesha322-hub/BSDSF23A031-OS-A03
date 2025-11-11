@@ -6,6 +6,8 @@
 #include "shell.h"
 #include "io_redirection.h"
 #include "pipes.h"
+#include "multitasking.h"  // <-- This fixes print_jobs() error
+
 
 // Simple tokenizer
 char **tokenize(char *cmd, int *argc) {
@@ -31,8 +33,12 @@ int contains_redirection(char *cmd) {
     return strchr(cmd, '<') != NULL || strchr(cmd, '>') != NULL;
 }
 
-// Main execution function
 void execute_command(char *cmd) {
+    if (strchr(cmd, ';') || strchr(cmd, '&')) {
+        execute_multitasking(cmd);
+        return;
+    }
+
     if (contains_pipe(cmd)) {
         execute_pipe(cmd);
     } else if (contains_redirection(cmd)) {
@@ -46,6 +52,12 @@ void execute_command(char *cmd) {
             for (int i = 0; i < argc; i++) free(args[i]);
             free(args);
             exit(0);
+        }
+        if (strcmp(args[0], "jobs") == 0) {
+            print_jobs();
+            for (int i = 0; i < argc; i++) free(args[i]);
+            free(args);
+            return;
         }
 
         pid_t pid = fork();
