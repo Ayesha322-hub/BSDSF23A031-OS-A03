@@ -1,25 +1,19 @@
-# Compiler and flags
 CC = gcc
 CFLAGS = -Iinclude -Wall
+LDFLAGS = -lreadline
 
-# Source and object files
-SRC = src/main.c src/shell.c src/execute.c src/history.c
-OBJ = obj/main.o obj/shell.o obj/execute.o obj/history.o
+SRC = src/main.c src/shell.c src/io_redirection.c src/pipes.c
+OBJ = obj/main.o obj/shell.o obj/io_redirection.o obj/pipes.o
 TARGET = bin/myshell
 
-# Default target
 all: $(TARGET)
 
-# Link object files to create executable
 $(TARGET): $(OBJ)
-	@mkdir -p bin
-	$(CC) $(OBJ) -o $(TARGET)
+	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
 
-# Compile source files into object files
 obj/%.o: src/%.c
-	@mkdir -p obj
+	mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean build files
 clean:
-	rm -rf obj/* $(TARGET)
+	rm -rf obj/*.o $(TARGET)

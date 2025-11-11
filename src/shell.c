@@ -4,74 +4,62 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "shell.h"
+#include "io_redirection.h"
+#include "pipes.h"
 
-#define MAX_ARGS 64
-#define DELIM " \t\r\n\a"
-
-// Split command string into arguments
-char **split_command(char *cmd) {
-    int bufsize = MAX_ARGS, position = 0;
-    char **tokens = malloc(bufsize * sizeof(char*));
-    char *token;
-
-    if (!tokens) {
-        fprintf(stderr, "myshell: allocation error\n");
-        exit(EXIT_FAILURE);
-    }
-
-    token = strtok(cmd, DELIM);
+// Simple tokenizer
+char **tokenize(char *cmd, int *argc) {
+    char **args = malloc(64 * sizeof(char*));
+    int count = 0;
+    char *token = strtok(cmd, " \t\r\n");
     while (token != NULL) {
-        tokens[position++] = strdup(token);  // strdup to copy each token
-        if (position >= bufsize) {
-            bufsize += MAX_ARGS;
-            tokens = realloc(tokens, bufsize * sizeof(char*));
-            if (!tokens) {
-                fprintf(stderr, "myshell: allocation error\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-        token = strtok(NULL, DELIM);
+        args[count++] = strdup(token);
+        token = strtok(NULL, " \t\r\n");
     }
-    tokens[position] = NULL;
-    return tokens;
+    args[count] = NULL;
+    *argc = count;
+    return args;
 }
 
-// Free the array of arguments
-void free_args(char **args) {
-    if (!args)
-        return;
-    for (int i = 0; args[i] != NULL; i++) {
-        free(args[i]);
-    }
-    free(args);
+// Check if command contains a pipe
+int contains_pipe(char *cmd) {
+    return strchr(cmd, '|') != NULL;
 }
 
-// Execute command
-void execute(char **args) {
-    if (args[0] == NULL)  // empty command
-        return;
+// Check if command contains redirection
+int contains_redirection(char *cmd) {
+    return strchr(cmd, '<') != NULL || strchr(cmd, '>') != NULL;
+}
 
-    // Handle built-in command: exit
-    if (strcmp(args[0], "exit") == 0) {
-        free_args(args);
-        exit(0);
-    }
-
-    pid_t pid = fork();
-    if (pid == 0) {
-        // Child process
-        if (execvp(args[0], args) == -1) {
-            perror("myshell");
-        }
-        exit(EXIT_FAILURE);
-    } else if (pid < 0) {
-        // Forking error
-        perror("myshell");
+// Main execution function
+void execute_command(char *cmd) {
+    if (contains_pipe(cmd)) {
+        execute_pipe(cmd);
+    } else if (contains_redirection(cmd)) {
+        execute_redirection(cmd);
     } else {
-        // Parent waits for child
-        int status;
-        waitpid(pid, &status, 0);
-    }
+        int argc;
+        char **args = tokenize(cmd, &argc);
+        if (argc == 0) { free(args); return; }
 
-    free_args(args);  // free allocated argument memory
+        if (strcmp(args[0], "exit") == 0) {
+            for (int i = 0; i < argc; i++) free(args[i]);
+            free(args);
+            exit(0);
+        }
+
+        pid_t pid = fork();
+        if (pid == 0) {
+            execvp(args[0], args);
+            perror("myshell");
+            exit(1);
+        } else if (pid < 0) {
+            perror("fork");
+        } else {
+            waitpid(pid, NULL, 0);
+        }
+
+        for (int i = 0; i < argc; i++) free(args[i]);
+        free(args);
+    }
 }

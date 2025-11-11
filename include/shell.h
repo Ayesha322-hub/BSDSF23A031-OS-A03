@@ -1,8 +1,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-char **split_command(char *cmd);
-void free_args(char **args);
-void execute(char **args);
+// Unified function to execute any command (plain, redirection, or pipe)
+void execute_command(char *cmd);
 
-#endif
+#endif // SHELL_H
