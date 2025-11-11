@@ -1,20 +1,20 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "shell.h"
 
-int execute(char* arglist[]) {
-    int status;
-    int cpid = fork();
-
-    switch (cpid) {
-        case -1:
-            perror("fork failed");
-            exit(1);
-        case 0: // Child process
-            execvp(arglist[0], arglist);
-            perror("Command not found"); // This line runs only if execvp fails
-            exit(1);
-        default: // Parent process
-            waitpid(cpid, &status, 0);
-            // printf("Child pid:%d exited with status %d\n", cpid, status >> 8);
-            return 0;
+void execute(char **args) {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork failed");
+    } else if (pid == 0) {
+        if (execvp(args[0], args) == -1) {
+            perror("myshell");
+        }
+        exit(EXIT_FAILURE);
+    } else {
+        int status;
+        waitpid(pid, &status, 0);
     }
 }
